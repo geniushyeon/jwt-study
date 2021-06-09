@@ -4,11 +4,13 @@ import com.geniushyeon.jwttutorial.dto.UserDto;
 import com.geniushyeon.jwttutorial.entity.Authority;
 import com.geniushyeon.jwttutorial.entity.User;
 import com.geniushyeon.jwttutorial.repository.UserRepository;
+import com.geniushyeon.jwttutorial.util.SecurityUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -39,5 +41,15 @@ public class UserService {
         .build();
 
     return userRepository.save(user);
+  }
+
+  @Transactional(readOnly = true)
+  public Optional<User> getUserWithQuthorities(String username) {
+    return userRepository.findOneWithAuthoritiesByUsername(username);
+  }
+
+  @Transactional(readOnly = true)
+  public Optional<User> getMyUserWithAuthorities() {
+    return SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByUsername);
   }
 }
